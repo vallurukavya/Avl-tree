@@ -1,0 +1,851 @@
+Yes — here is the **complete AVL Tree in one HTML file**. It contains the HTML, CSS, and JavaScript together. Save it as `avl.html` and open it in your browser.
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AVL Tree Visualizer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            text-align: center;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2563eb;
+            margin-bottom: 25px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 180px;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #message {
+            margin: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #tree {
+            margin-top: 30px;
+            overflow: auto;
+            padding: 30px;
+        }
+
+        .node-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .node {
+            width: 60px;
+            height: 60px;
+            background: #2563eb;
+            color: white;
+            border: 4px solid #1e3a8a;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .info {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .children {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 35px;
+        }
+
+        .empty {
+            width: 60px;
+            height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>AVL Tree Visualizer</h1>
+
+    <div class="controls">
+
+        <input
+            type="number"
+            id="value"
+            placeholder="Enter value"
+        >
+
+        <button onclick="insertValue()">Insert</button>
+
+        <button onclick="deleteValue()">Delete</button>
+
+        <button onclick="searchValue()">Search</button>
+
+        <button onclick="clearTree()">Clear</button>
+
+    </div>
+
+    <p id="message">Enter a value to start.</p>
+
+    <div id="tree"></div>
+
+    <script>
+
+        // =====================================
+        // AVL TREE NODE
+        // =====================================
+
+        class Node {
+
+            constructor(value) {
+
+                this.value = value;
+
+                this.left = null;
+
+                this.right = null;
+
+                this.height = 1;
+            }
+        }
+
+        // =====================================
+        // AVL TREE
+        // =====================================
+
+        class AVLTree {
+
+            constructor() {
+
+                this.root = null;
+            }
+
+            // Get height
+
+            height(node) {
+
+                if (node === null) {
+                    return 0;
+                }
+
+                return node.height;
+            }
+
+            // Get balance factor
+
+            getBalance(node) {
+
+                if (node === null) {
+                    return 0;
+                }
+
+                return this.height(node.left) -
+                       this.height(node.right);
+            }
+
+            // Update height
+
+            updateHeight(node) {
+
+                node.height =
+                    1 +
+                    Math.max(
+                        this.height(node.left),
+                        this.height(node.right)
+                    );
+            }
+
+            // =================================
+            // RIGHT ROTATION
+            // =================================
+
+            rightRotate(y) {
+
+                let x = y.left;
+
+                let temp = x.right;
+
+                x.right = y;
+
+                y.left = temp;
+
+                this.updateHeight(y);
+
+                this.updateHeight(x);
+
+                return x;
+            }
+
+            // =================================
+            // LEFT ROTATION
+            // =================================
+
+            leftRotate(x) {
+
+                let y = x.right;
+
+                let temp = y.left;
+
+                y.left = x;
+
+                x.right = temp;
+
+                this.updateHeight(x);
+
+                this.updateHeight(y);
+
+                return y;
+            }
+
+            // =================================
+            // INSERT
+            // =================================
+
+            insert(node, value) {
+
+                // Create node
+
+                if (node === null) {
+
+                    return new Node(value);
+                }
+
+                // BST insertion
+
+                if (value < node.value) {
+
+                    node.left =
+                        this.insert(
+                            node.left,
+                            value
+                        );
+
+                }
+
+                else if (value > node.value) {
+
+                    node.right =
+                        this.insert(
+                            node.right,
+                            value
+                        );
+
+                }
+
+                else {
+
+                    return node;
+                }
+
+                // Update height
+
+                this.updateHeight(node);
+
+                // Balance factor
+
+                let balance =
+                    this.getBalance(node);
+
+                // =================================
+                // LL ROTATION
+                // =================================
+
+                if (
+                    balance > 1 &&
+                    value < node.left.value
+                ) {
+
+                    return this.rightRotate(node);
+                }
+
+                // =================================
+                // RR ROTATION
+                // =================================
+
+                if (
+                    balance < -1 &&
+                    value > node.right.value
+                ) {
+
+                    return this.leftRotate(node);
+                }
+
+                // =================================
+                // LR ROTATION
+                // =================================
+
+                if (
+                    balance > 1 &&
+                    value > node.left.value
+                ) {
+
+                    node.left =
+                        this.leftRotate(node.left);
+
+                    return this.rightRotate(node);
+                }
+
+                // =================================
+                // RL ROTATION
+                // =================================
+
+                if (
+                    balance < -1 &&
+                    value < node.right.value
+                ) {
+
+                    node.right =
+                        this.rightRotate(node.right);
+
+                    return this.leftRotate(node);
+                }
+
+                return node;
+            }
+
+            // =================================
+            // FIND MINIMUM NODE
+            // =================================
+
+            getMinValueNode(node) {
+
+                let current = node;
+
+                while (current.left !== null) {
+
+                    current = current.left;
+                }
+
+                return current;
+            }
+
+            // =================================
+            // DELETE
+            // =================================
+
+            delete(node, value) {
+
+                if (node === null) {
+
+                    return null;
+                }
+
+                // Search left
+
+                if (value < node.value) {
+
+                    node.left =
+                        this.delete(
+                            node.left,
+                            value
+                        );
+                }
+
+                // Search right
+
+                else if (value > node.value) {
+
+                    node.right =
+                        this.delete(
+                            node.right,
+                            value
+                        );
+                }
+
+                // Node found
+
+                else {
+
+                    // No child
+
+                    if (
+                        node.left === null &&
+                        node.right === null
+                    ) {
+
+                        return null;
+                    }
+
+                    // Right child
+
+                    if (node.left === null) {
+
+                        return node.right;
+                    }
+
+                    // Left child
+
+                    if (node.right === null) {
+
+                        return node.left;
+                    }
+
+                    // Two children
+
+                    let temp =
+                        this.getMinValueNode(
+                            node.right
+                        );
+
+                    node.value = temp.value;
+
+                    node.right =
+                        this.delete(
+                            node.right,
+                            temp.value
+                        );
+                }
+
+                // Update height
+
+                this.updateHeight(node);
+
+                // Balance
+
+                let balance =
+                    this.getBalance(node);
+
+                // LL
+
+                if (
+                    balance > 1 &&
+                    this.getBalance(node.left) >= 0
+                ) {
+
+                    return this.rightRotate(node);
+                }
+
+                // LR
+
+                if (
+                    balance > 1 &&
+                    this.getBalance(node.left) < 0
+                ) {
+
+                    node.left =
+                        this.leftRotate(
+                            node.left
+                        );
+
+                    return this.rightRotate(node);
+                }
+
+                // RR
+
+                if (
+                    balance < -1 &&
+                    this.getBalance(node.right) <= 0
+                ) {
+
+                    return this.leftRotate(node);
+                }
+
+                // RL
+
+                if (
+                    balance < -1 &&
+                    this.getBalance(node.right) > 0
+                ) {
+
+                    node.right =
+                        this.rightRotate(
+                            node.right
+                        );
+
+                    return this.leftRotate(node);
+                }
+
+                return node;
+            }
+
+            // =================================
+            // SEARCH
+            // =================================
+
+            search(node, value) {
+
+                if (node === null) {
+
+                    return false;
+                }
+
+                if (node.value === value) {
+
+                    return true;
+                }
+
+                if (value < node.value) {
+
+                    return this.search(
+                        node.left,
+                        value
+                    );
+                }
+
+                return this.search(
+                    node.right,
+                    value
+                );
+            }
+        }
+
+        // =====================================
+        // CREATE TREE
+        // =====================================
+
+        let avl = new AVLTree();
+
+        // =====================================
+        // INSERT VALUE
+        // =====================================
+
+        function insertValue() {
+
+            let input =
+                document.getElementById("value");
+
+            let value =
+                Number(input.value);
+
+            if (input.value === "") {
+
+                showMessage(
+                    "Please enter a value."
+                );
+
+                return;
+            }
+
+            if (
+                avl.search(
+                    avl.root,
+                    value
+                )
+            ) {
+
+                showMessage(
+                    "Value already exists."
+                );
+
+                return;
+            }
+
+            avl.root =
+                avl.insert(
+                    avl.root,
+                    value
+                );
+
+            showMessage(
+                value + " inserted."
+            );
+
+            input.value = "";
+
+            displayTree();
+        }
+
+        // =====================================
+        // DELETE VALUE
+        // =====================================
+
+        function deleteValue() {
+
+            let input =
+                document.getElementById("value");
+
+            let value =
+                Number(input.value);
+
+            if (input.value === "") {
+
+                showMessage(
+                    "Please enter a value."
+                );
+
+                return;
+            }
+
+            if (
+                !avl.search(
+                    avl.root,
+                    value
+                )
+            ) {
+
+                showMessage(
+                    "Value not found."
+                );
+
+                return;
+            }
+
+            avl.root =
+                avl.delete(
+                    avl.root,
+                    value
+                );
+
+            showMessage(
+                value + " deleted."
+            );
+
+            input.value = "";
+
+            displayTree();
+        }
+
+        // =====================================
+        // SEARCH VALUE
+        // =====================================
+
+        function searchValue() {
+
+            let input =
+                document.getElementById("value");
+
+            let value =
+                Number(input.value);
+
+            if (input.value === "") {
+
+                showMessage(
+                    "Please enter a value."
+                );
+
+                return;
+            }
+
+            let found =
+                avl.search(
+                    avl.root,
+                    value
+                );
+
+            if (found) {
+
+                showMessage(
+                    value + " found in AVL tree."
+                );
+
+            } else {
+
+                showMessage(
+                    value + " not found."
+                );
+            }
+        }
+
+        // =====================================
+        // CLEAR TREE
+        // =====================================
+
+        function clearTree() {
+
+            avl.root = null;
+
+            document.getElementById(
+                "tree"
+            ).innerHTML = "";
+
+            showMessage(
+                "Tree cleared."
+            );
+        }
+
+        // =====================================
+        // MESSAGE
+        // =====================================
+
+        function showMessage(message) {
+
+            document.getElementById(
+                "message"
+            ).textContent = message;
+        }
+
+        // =====================================
+        // DISPLAY TREE
+        // =====================================
+
+        function displayTree() {
+
+            let tree =
+                document.getElementById("tree");
+
+            tree.innerHTML = "";
+
+            if (avl.root === null) {
+
+                tree.innerHTML =
+                    "<h3>Tree is empty</h3>";
+
+                return;
+            }
+
+            tree.appendChild(
+                createNodeElement(
+                    avl.root
+                )
+            );
+        }
+
+        // =====================================
+        // CREATE NODE ELEMENT
+        // =====================================
+
+        function createNodeElement(node) {
+
+            let container =
+                document.createElement("div");
+
+            container.className =
+                "node-container";
+
+            // Node circle
+
+            let nodeElement =
+                document.createElement("div");
+
+            nodeElement.className =
+                "node";
+
+            nodeElement.textContent =
+                node.value;
+
+            container.appendChild(
+                nodeElement
+            );
+
+            // Height and balance
+
+            let info =
+                document.createElement("div");
+
+            info.className = "info";
+
+            info.textContent =
+                "Height: " +
+                node.height +
+                " | Balance: " +
+                avl.getBalance(node);
+
+            container.appendChild(
+                info
+            );
+
+            // Children
+
+            if (
+                node.left !== null ||
+                node.right !== null
+            ) {
+
+                let children =
+                    document.createElement("div");
+
+                children.className =
+                    "children";
+
+                // Left child
+
+                if (node.left !== null) {
+
+                    children.appendChild(
+                        createNodeElement(
+                            node.left
+                        )
+                    );
+
+                } else {
+
+                    let empty =
+                        document.createElement("div");
+
+                    empty.className =
+                        "empty";
+
+                    children.appendChild(empty);
+                }
+
+                // Right child
+
+                if (node.right !== null) {
+
+                    children.appendChild(
+                        createNodeElement(
+                            node.right
+                        )
+                    );
+
+                } else {
+
+                    let empty =
+                        document.createElement("div");
+
+                    empty.className =
+                        "empty";
+
+                    children.appendChild(empty);
+                }
+
+                container.appendChild(
+                    children
+                );
+            }
+
+            return container;
+        }
+
+    </script>
+
+</body>
+</html>
+
+ 
